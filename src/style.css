@@ -1,5 +1,5 @@
 :root {
-  --text: #6b6375;
+  --text: #fffae5;
   --text-h: #08060d;
   --bg: #fff;
   --border: #e5e4e7;
@@ -70,10 +70,10 @@ html {
 }
 
 h1,
-h2 {
+h2,h3,h4 {
   font-family: var(--heading);
   font-weight: 500;
-  color: var(--text-h);
+  color: var(--text-h) !important;
 }
 
 h1 {
@@ -96,6 +96,10 @@ h2 {
 }
 p {
   margin: 0;
+}
+
+#results {
+  color: var(--text-h) !important;
 }
 
 code,

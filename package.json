@@ -17,6 +17,7 @@
     "vite": "^8.0.10"
   },
   "dependencies": {
+    "@hasagi/core": "^0.6.11",
     "bootstrap": "^5.3.8"
   }
 }
