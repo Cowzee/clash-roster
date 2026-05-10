@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+#dev
+scripts/collect-data.cjs
+test_data

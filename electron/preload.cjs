@@ -6,4 +6,6 @@ contextBridge.exposeInMainWorld('leagueApi', {
   getPort: () => ipcRenderer.invoke('league-get-port'),
   checkConnection: () => ipcRenderer.invoke('league-check'),
   getSummonerName: () => ipcRenderer.invoke('league-get-summoner'),
+  getBracket: () => ipcRenderer.invoke('league-get-bracket'),
+  getPlayerRoster: () => ipcRenderer.invoke('league-get-player-roster')
 });

@@ -98,7 +98,7 @@ p {
   margin: 0;
 }
 
-#results {
+#results, #bracketTeam {
   color: var(--text-h) !important;
 }
 

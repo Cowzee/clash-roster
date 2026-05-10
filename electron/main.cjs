@@ -2,6 +2,7 @@ const { app, BrowserWindow, shell, ipcMain } = require('electron')
 const path = require('node:path')
 const { HasagiClient } = require('@hasagi/core')
 const { existsSync, readFileSync } = require('node:fs')
+// import '../node_modules/@hasagi/core/types/lcu-types.d.ts'
 
 const lockfilePath = 'C:/Riot Games/League of Legends/lockfile'
 const client = new HasagiClient()
@@ -85,6 +86,81 @@ ipcMain.handle('league-check', async () => {
   }
 })
 
+
+ipcMain.handle('league-get-player-roster', async () => {
+
+
+  try {
+    const curTournaments = await client.request("get", "/lol-clash/v1/currentTournamentIds");
+    if (!curTournaments || curTournaments.length === 0) return null;
+
+    const tournamentInfo = await client.request("get", "/lol-clash/v1/tournament/" + curTournaments[0] + "/player");
+    const rosterInfo = await client.request("get", "/lol-clash/v1/roster/" + tournamentInfo.rosterId);
+    const summoners = [];
+
+    for (const member of rosterInfo.members) {
+      const summonerInfo = await client.request("get", "/lol-summoner/v1/summoners/" + member.summonerId);
+      if (summonerInfo?.gameName && summonerInfo?.tagLine) {
+        summoners.push(summonerInfo.gameName + "-" + summonerInfo.tagLine);
+      }
+
+
+    }
+    // console.log(summoners);
+    return summoners;
+    
+  } catch (error) {
+    return null;
+  }
+
+
+
+});
+ipcMain.handle('league-get-bracket', async () => {
+  const teams = [];
+  const matchesFormatted = [];
+
+  try {
+    const curTournaments = await client.request("get", "/lol-clash/v1/currentTournamentIds");
+    if (!curTournaments || curTournaments.length === 0) return null;
+
+    const tournamentInfo = await client.request("get", "/lol-clash/v1/tournament/" + curTournaments[0] + "/player");
+    const bracketInfo = await client.request("get", "/lol-clash/v1/bracket/" + tournamentInfo.bracketId);
+
+    for (const roster of bracketInfo.rosters) {
+      const rosterInfo = await client.request("get", "/lol-clash/v1/roster/" + roster.rosterId);
+      const summoners = [];
+
+      for (const member of rosterInfo.members) {
+        const summonerInfo = await client.request("get", "/lol-summoner/v1/summoners/" + member.summonerId);
+        if (summonerInfo?.gameName && summonerInfo?.tagLine) {
+          summoners.push(summonerInfo.gameName + "-" + summonerInfo.tagLine);
+        }
+      }
+
+      teams.push({
+        id: roster.rosterId,
+        name: rosterInfo.name,
+        shortName: rosterInfo.shortName,
+        members: summoners
+      });
+    }
+
+    for (const match of bracketInfo.matches) {
+      matchesFormatted.push({
+        id1: match.rosterId1,
+        id2: match.rosterId2,
+        order: match.order
+      });
+    }
+
+    return { teams, matches: matchesFormatted };
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+})
+
 ipcMain.handle('league-get-summoner', async () => {
   if (!client.isConnected) {
     console.log('League client not connected')
@@ -98,7 +174,7 @@ ipcMain.handle('league-get-summoner', async () => {
         retryDelay: 0,
       },
     })
-    console.log('Summoner data:', summoner)
+    // console.log('Summoner data:', summoner)
     return summoner.gameName && summoner.gameName.trim() ? summoner.gameName : null
   } catch (error) {
     console.log('Error fetching summoner:', error.message)
